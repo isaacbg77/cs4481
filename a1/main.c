@@ -3,6 +3,11 @@
 
 #include "libpnm.h" // PNM library
 
+int round_positive(float f) {
+    if (f < 0) return 0;
+    return (int) (f + 0.5);
+}
+
 void generate_pbm_image(unsigned int width, unsigned int height, char *name, bool raw) {
     // Create empty pbm image
     struct PBM_Image pbmImage;
@@ -11,20 +16,12 @@ void generate_pbm_image(unsigned int width, unsigned int height, char *name, boo
         return;
     }
 
-    int larger;
-    int smaller;
-    if (width >= height) {
-        larger = width;
-        smaller = height;
-    }
-    else {
-        larger = height;
-        smaller = width;
-    }
+    int larger = width >= height ? width : height;
+    int smaller = width >= height ? height : width;
 
-    int lineStepSize = larger / smaller;
-    int lineStart1 = larger / 4;
-    int lineStart2 = larger * 3/4 - 1;
+    float lineStepSize = (float) larger / smaller;
+    float lineStep1 = (float) larger / 4;
+    float lineStep2 = (float) larger * 3/4 - 1;
 
     for (int i = 0; i < smaller; i++) {
         for (int j = 0; j < larger; j++) {
@@ -32,18 +29,18 @@ void generate_pbm_image(unsigned int width, unsigned int height, char *name, boo
                 larger == width ? (pbmImage.image[i][j] = 1) : (pbmImage.image[j][i] = 1);
             }
             else {
-                if (j >= lineStart1 && j < lineStart1 + lineStepSize) {
+                if (j >= round_positive(lineStep1) && j < round_positive(lineStep1 + lineStepSize)) {
                     larger == width ? (pbmImage.image[i][j] = 1) : (pbmImage.image[j][i] = 1);
                 }
-                else if (j > lineStart2 - lineStepSize && j <= lineStart2) {
+                else if (j > round_positive(lineStep2 - lineStepSize) && j <= round_positive(lineStep2)) {
                     larger == width ? (pbmImage.image[i][j] = 1) : (pbmImage.image[j][i] = 1);
                 }
             }
         }
 
         if (i >= smaller/4 && i < smaller*3/4) {
-            lineStart1 += lineStepSize;
-            lineStart2 -= lineStepSize;
+            lineStep1 += lineStepSize;
+            lineStep2 -= lineStepSize;
         }
     }
 
