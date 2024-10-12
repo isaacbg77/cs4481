@@ -1,4 +1,3 @@
-#include <stdlib.h>
 #include <stdio.h>
 
 #include "libpnm.h" // PNM library
@@ -249,7 +248,7 @@ int main(int argc, char *argv[])
     // Check for 5 input args
     if (argc != 6) {
         printf("Incorrect number of arguments. Please enter 5 arguments.\n");
-        return EXIT_FAILURE;
+        return 0;
     }
 
     // Read in args
@@ -263,19 +262,19 @@ int main(int argc, char *argv[])
     if (type == 1 || type == 2) {
         if (width < 4 || width % 4 != 0) {
             printf("Image width of pbm and pgm images must be divisible by 4 and equal to 4 or greater.\n");
-            return EXIT_FAILURE;
+            return 0;
         }
     }
     else if (type == 3) {
         if (width < 6 || width % 6 != 0) {
             printf("Image width of ppm images must be divisible by 6 and equal to 6 or greater.\n");
-            return EXIT_FAILURE;
+            return 0;
         }
     }
     // Check image height
     if (height < 4 || height % 4 != 0) {
         printf("Image height must be divisible by 4 and equal to 4 or greater.\n");
-        return EXIT_FAILURE;
+        return 0;
     }
 
     // Generate image based on type code
@@ -289,6 +288,5 @@ int main(int argc, char *argv[])
         generate_ppm_image(width, height, name, raw);
     }
 
-
-    return EXIT_SUCCESS;
+    return 0;
 }
