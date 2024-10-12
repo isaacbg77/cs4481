@@ -3,6 +3,8 @@
 
 #include "libpnm.h" // PNM library
 
+
+// Custom function for rounding floating point numbers
 int round_float(float f) {
     return (int) (f < 0 ? f - 0.5 : f + 0.5);
 }
@@ -15,28 +17,36 @@ void generate_pbm_image(unsigned int width, unsigned int height, char *name, boo
         return;
     }
 
+    // Find larger out of width/height
     int larger = width >= height ? width : height;
     int smaller = width >= height ? height : width;
 
+    // Define step size and starting steps for diagonal lines
     float lineStepSize = (float) larger / smaller;
     float lineStep1 = (float) larger / 4;
     float lineStep2 = (float) larger * 3/4 - 1;
 
     for (int i = 0; i < smaller; i++) {
         for (int j = 0; j < larger; j++) {
+            // Draw outer black rectangle
             if (i < smaller/4 || i >= smaller*3/4 || j < larger/4 || j >= larger*3/4) {
                 larger == width ? (pbmImage.image[i][j] = 1) : (pbmImage.image[j][i] = 1);
             }
+
+            // Inner white rectangle
             else {
+                // Draw line 1
                 if (j >= round_float(lineStep1) && j < round_float(lineStep1 + lineStepSize)) {
                     larger == width ? (pbmImage.image[i][j] = 1) : (pbmImage.image[j][i] = 1);
                 }
+                // Draw line 2
                 else if (j > round_float(lineStep2 - lineStepSize) && j <= round_float(lineStep2)) {
                     larger == width ? (pbmImage.image[i][j] = 1) : (pbmImage.image[j][i] = 1);
                 }
             }
         }
 
+        // Increment/decrement line steps
         if (i >= smaller/4 && i < smaller*3/4) {
             lineStep1 += lineStepSize;
             lineStep2 -= lineStepSize;
@@ -63,21 +73,25 @@ void generate_pgm_image(unsigned int width, unsigned int height, char *name, boo
         return;
     }
 
+    // Find larger out of width/height
     int larger = width >= height ? width : height;
     int smaller = width >= height ? height : width;
 
+    // Define step size and starting steps for diagonal lines
     float lineStepSize = (float) larger / smaller;
     float lineStep1 = (float) larger / 4;
     float lineStep2 = (float) larger * 3/4 - 1;
-
+    
+    // Define gradient level and step size for larger image dimension
     float largerGrayLevel = maxGray;
     float largerGrayStepSize = (float) maxGray / larger * 4;
 
+    // Define gradient level and step size for smaller image dimension
     float smallerGrayLevel = maxGray;
     float smallerGrayStepSize = (float) maxGray / smaller * 4;
 
     for (int i = 0; i < smaller; i++) {
-        largerGrayLevel = maxGray;
+        largerGrayLevel = maxGray; // Reset larger gradient level every iteration
         
         for (int j = 0; j < larger; j++) {
             // Draw black outer rectangle
@@ -87,27 +101,35 @@ void generate_pgm_image(unsigned int width, unsigned int height, char *name, boo
 
             // Draw inside white rectangle
             else {
+                // "Top" half of image
                 if (i < smaller/2) {
+                    // Left triangle
                     if (j < round_float(lineStep1)) {
                         larger == width ? (pgmImage.image[i][j] = round_float(largerGrayLevel)) : (pgmImage.image[j][i] = round_float(largerGrayLevel));
                         largerGrayLevel -= largerGrayStepSize;
                     }
+                    // Middle triangle
                     else if (j >= round_float(lineStep1) && j <= round_float(lineStep2)) {
                         larger == width ? (pgmImage.image[i][j] = round_float(smallerGrayLevel)) : (pgmImage.image[j][i] = round_float(smallerGrayLevel));
                     }
+                    // Right triangle
                     else if (j > round_float(lineStep2)) {
                         larger == width ? (pgmImage.image[i][j] = round_float(largerGrayLevel)) : (pgmImage.image[j][i] = round_float(largerGrayLevel));
                         largerGrayLevel += largerGrayStepSize;
                     }
                 }
+                // "Bottom" half of image
                 else if (i >= smaller/2) {
+                    // Left triangle
                     if (j < round_float(lineStep2)) {
                         larger == width ? (pgmImage.image[i][j] = round_float(largerGrayLevel)) : (pgmImage.image[j][i] = round_float(largerGrayLevel));
                         largerGrayLevel -= largerGrayStepSize;
                     }
+                    // Middle triangle
                     else if (j >= round_float(lineStep2) && j <= round_float(lineStep1)) {
                         larger == width ? (pgmImage.image[i][j] = round_float(smallerGrayLevel)) : (pgmImage.image[j][i] = round_float(smallerGrayLevel));
                     }
+                    // Right triangle
                     else if (j > round_float(lineStep1)) {
                         larger == width ? (pgmImage.image[i][j] = round_float(largerGrayLevel)) : (pgmImage.image[j][i] = round_float(largerGrayLevel));
                         largerGrayLevel += largerGrayStepSize;
@@ -117,9 +139,11 @@ void generate_pgm_image(unsigned int width, unsigned int height, char *name, boo
         }
 
         if (i >= smaller/4 && i < smaller*3/4) {
+            // Increment/decrement line steps
             lineStep1 += lineStepSize;
             lineStep2 -= lineStepSize;
-
+            
+            // Increment/decrement smaller gradient level
             if (i < smaller/2)
                 smallerGrayLevel -= smallerGrayStepSize;
             else if (i >= smaller/2)
@@ -146,30 +170,35 @@ void generate_ppm_image(unsigned int width, unsigned int height, char *name, boo
         printf("Failed to initialize ppm image.\n");
         return;
     }
-
-    float colorGradientLevel = 0;
-    float grayGradientLevel = 0;
-    float gradientStepSize = (float) maxColor / height * 2;
+    
+    float colorGradientLevel = 0; // Define gradient level for colored section of image
+    float grayGradientLevel = 0; // Define gradient level for grayscale section of image
+    float gradientStepSize = (float) maxColor / height * 2; //Define gradient step size
 
     for (int i = 0; i < height; i++) {
         for (int j = 0; j < width; j++) {
+            // Top half
             if (i < height/2) {
+                // Draw red gradient
                 if (j < width/3) {
                     ppmImage.image[i][j][RED] = maxColor;
                     ppmImage.image[i][j][GREEN] = ppmImage.image[i][j][BLUE] = round_float(colorGradientLevel);
                 }
+                // Draw green gradient
                 else if (j >= width/3 && j < width*2/3) {
                     ppmImage.image[i][j][GREEN] = maxColor;
                     ppmImage.image[i][j][RED] = ppmImage.image[i][j][BLUE] = round_float(maxColor - colorGradientLevel);
 
                 }
+                // Draw blue gradient
                 else if (j >= width*2/3) {
                     ppmImage.image[i][j][BLUE] = maxColor;
                     ppmImage.image[i][j][RED] = ppmImage.image[i][j][GREEN] = round_float(colorGradientLevel);
                 }
             }
+            // Bottom half
             else if (i >= height/2) {
-
+                // Draw the 2 grayscale gradients
                 if (j < width/2) {
                     ppmImage.image[i][j][RED] = ppmImage.image[i][j][GREEN] = ppmImage.image[i][j][BLUE] = round_float(grayGradientLevel);
                 }
@@ -178,7 +207,8 @@ void generate_ppm_image(unsigned int width, unsigned int height, char *name, boo
                 }
             }
         }
-
+        
+        // Increment gradient levels
         if (i < height/2)
             colorGradientLevel = colorGradientLevel + gradientStepSize;
         else if (i >= height/2)
@@ -190,7 +220,8 @@ void generate_ppm_image(unsigned int width, unsigned int height, char *name, boo
         printf("Failed to save ppm image.\n");
         return;
     }
-
+    
+    // Convert and save ppm image as 3 pgm images
     for (int color = RED; color <= BLUE; color++) {
         struct PGM_Image temp;
 
@@ -257,6 +288,7 @@ int main(int argc, char *argv[])
     else if (type == 3) {
         generate_ppm_image(width, height, name, raw);
     }
+
 
     return EXIT_SUCCESS;
 }
