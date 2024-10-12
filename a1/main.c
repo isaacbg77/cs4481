@@ -137,6 +137,82 @@ void generate_pgm_image(unsigned int width, unsigned int height, char *name, boo
     free_PGM_Image(&pgmImage);
 }
 
+void generate_ppm_image(unsigned int width, unsigned int height, char *name, bool raw) {
+    int maxColor = 255;
+
+    // Create empty ppm image
+    struct PPM_Image ppmImage;
+    if (create_PPM_Image(&ppmImage, width, height, maxColor) < 0) {
+        printf("Failed to initialize ppm image.\n");
+        return;
+    }
+
+    float colorGradientLevel = 0;
+    float grayGradientLevel = 0;
+    float gradientStepSize = (float) maxColor / height * 2;
+
+    for (int i = 0; i < height; i++) {
+        for (int j = 0; j < width; j++) {
+            if (i < height/2) {
+                if (j < width/3) {
+                    ppmImage.image[i][j][RED] = maxColor;
+                    ppmImage.image[i][j][GREEN] = ppmImage.image[i][j][BLUE] = round_float(colorGradientLevel);
+                }
+                else if (j >= width/3 && j < width*2/3) {
+                    ppmImage.image[i][j][GREEN] = maxColor;
+                    ppmImage.image[i][j][RED] = ppmImage.image[i][j][BLUE] = round_float(maxColor - colorGradientLevel);
+
+                }
+                else if (j >= width*2/3) {
+                    ppmImage.image[i][j][BLUE] = maxColor;
+                    ppmImage.image[i][j][RED] = ppmImage.image[i][j][GREEN] = round_float(colorGradientLevel);
+                }
+            }
+            else if (i >= height/2) {
+
+                if (j < width/2) {
+                    ppmImage.image[i][j][RED] = ppmImage.image[i][j][GREEN] = ppmImage.image[i][j][BLUE] = round_float(grayGradientLevel);
+                }
+                else if (j >= width/2) {
+                    ppmImage.image[i][j][RED] = ppmImage.image[i][j][GREEN] = ppmImage.image[i][j][BLUE] = round_float(maxColor - grayGradientLevel);
+                }
+            }
+        }
+
+        if (i < height/2)
+            colorGradientLevel = colorGradientLevel + gradientStepSize;
+        else if (i >= height/2)
+            grayGradientLevel = grayGradientLevel + gradientStepSize;
+    }
+
+    // Save ppm image
+    if (save_PPM_Image(&ppmImage, name, raw) < 0) {
+        printf("Failed to save ppm image.\n");
+        return;
+    }
+
+    for (int color = RED; color <= BLUE; color++) {
+        struct PGM_Image temp;
+
+        create_PGM_Image(&temp, width, height, maxColor);
+        copy_PPM_to_PGM(&ppmImage, &temp, color);
+
+        char tempName[500];
+        if (color == RED)
+            sprintf(tempName, "%s_red.pgm", name);
+        else if (color == GREEN)
+            sprintf(tempName, "%s_green.pgm", name);
+        else if (color == BLUE)
+            sprintf(tempName, "%s_blue.pgm", name);
+
+        save_PGM_Image(&temp, tempName, raw);
+        free_PGM_Image(&temp);
+    }
+
+    // Free allocated memory
+    free_PPM_Image(&ppmImage);
+}
+
 int main(int argc, char *argv[])
 {
     // Check for 5 input args
@@ -177,6 +253,9 @@ int main(int argc, char *argv[])
     }
     else if (type == 2) {
         generate_pgm_image(width, height, name, raw);
+    }
+    else if (type == 3) {
+        generate_ppm_image(width, height, name, raw);
     }
 
     return EXIT_SUCCESS;
