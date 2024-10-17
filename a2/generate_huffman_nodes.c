@@ -11,7 +11,7 @@ struct node *generate_huffman_nodes(long int *pixel_frequency, int max_gray_valu
 
         for (int j = 0; j <= max_gray_value; j++) {
             long int freq = pixel_frequency[j];
-            
+
             if (freq > 0) {
                 if (nextNode.first_value == -1) {
                     nextNode.first_value = j;
