@@ -2,7 +2,7 @@
 
 struct node *generate_huffman_nodes(long int *pixel_frequency, int max_gray_value, int number_of_non_zero_values_in_the_frequency_array)
 {
-    struct node *huffman_nodes = (struct node *) malloc (number_of_non_zero_values_in_the_frequency_array-1 * sizeof(struct node));
+    struct node *huffman_nodes = (struct node *) calloc (number_of_non_zero_values_in_the_frequency_array-1, sizeof(struct node));
 
     for (int i = 0; i < number_of_non_zero_values_in_the_frequency_array-1; i++) {
         struct node nextNode;

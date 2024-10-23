@@ -61,6 +61,10 @@ unsigned char *huffman_encode_image(
         }
     }
 
-    *length_of_encoded_image_array = byte_pos;
+    if (bit_pos == 0)
+        *length_of_encoded_image_array = byte_pos;
+    else
+        *length_of_encoded_image_array = byte_pos + 1;
+
     return encoded_data;
 }
