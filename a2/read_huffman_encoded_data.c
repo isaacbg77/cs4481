@@ -19,9 +19,10 @@ unsigned char *read_huffman_encoded_data(
     fscanf(file, "%d\n", image_width);
     fscanf(file, "%d\n", image_height);
     fscanf(file, "%d\n", max_gray_value);
-
     fscanf(file, "%d\n", number_of_nodes);
-    fread(huffman_node, sizeof(struct node), *number_of_nodes, file);
+
+    *huffman_node = (struct node *) calloc (*number_of_nodes, sizeof(struct node));
+    fread(*huffman_node, sizeof(struct node), *number_of_nodes, file);
 
     fscanf(file, "%li\n", length_of_encoded_image_array);
 
