@@ -12,23 +12,23 @@ unsigned char *huffman_encode_image(
     int largest_code_length = 0;
 
     for (int i = number_of_nodes-1; i >= 0; i--) {
-        struct node nextNode = huffman_node[i];
-        int code_length = code_lengths[nextNode.first_value];
+        struct node next_node = huffman_node[i];
+        int code_length = code_lengths[next_node.first_value];
         int code_length_bytes = code_length / 8;
         unsigned char next_bit = (code_length % 8);
 
         for (int j = 0; j <= code_length_bytes; j++) {
-            huffman_codes[nextNode.second_value][j] = huffman_codes[nextNode.first_value][j];
+            huffman_codes[next_node.second_value][j] = huffman_codes[next_node.first_value][j];
         }
 
-        huffman_codes[nextNode.first_value][code_length_bytes] &= ~(1 << (7 - next_bit));
-        huffman_codes[nextNode.second_value][code_length_bytes] |= 1 << (7 - next_bit);
+        huffman_codes[next_node.first_value][code_length_bytes] &= ~(1 << (7 - next_bit));
+        huffman_codes[next_node.second_value][code_length_bytes] |= 1 << (7 - next_bit);
 
-        code_lengths[nextNode.first_value]++;
-        code_lengths[nextNode.second_value]++;
+        code_lengths[next_node.first_value]++;
+        code_lengths[next_node.second_value]++;
 
-        if (code_lengths[nextNode.first_value] > largest_code_length)
-            largest_code_length = code_lengths[nextNode.first_value];
+        if (code_lengths[next_node.first_value] > largest_code_length)
+            largest_code_length = code_lengths[next_node.first_value];
     }
 
     int image_width = input_pgm_image->width;
@@ -40,10 +40,10 @@ unsigned char *huffman_encode_image(
 
     for (int i = 0; i < image_height; i++) {
         for (int j = 0; j < image_width; j++) {
-            unsigned char grayValue = input_pgm_image->image[i][j];
+            unsigned char gray_value = input_pgm_image->image[i][j];
             
-            unsigned char *code = huffman_codes[grayValue];
-            int code_length = code_lengths[grayValue];
+            unsigned char *code = huffman_codes[gray_value];
+            int code_length = code_lengths[gray_value];
             int code_bit_pos = 0;
 
             while (code_bit_pos < code_length) {
