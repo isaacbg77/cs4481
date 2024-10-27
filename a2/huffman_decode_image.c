@@ -18,26 +18,29 @@ struct PGM_Image *huffman_decode_image(
     root.value = root.left = root.right = -1;
     huffman_tree[0] = root;
 
+    int next_index = 1;
+
     for (int i = number_of_nodes-1; i >= 0; i--) {
         struct node next_node = huffman_node[i];
         int leaf = leaves[next_node.first_value];
 
         huffman_tree[leaf].value = -1;
-        huffman_tree[leaf].left = leaf + 1;
-        huffman_tree[leaf].right = leaf + 2;
+        huffman_tree[leaf].left = next_index;
+        huffman_tree[leaf].right = next_index + 1;
 
         struct tree_node left_child;
         left_child.value = next_node.first_value;
         left_child.left = left_child.right = -1;
-        huffman_tree[leaf + 1] = left_child;
+        huffman_tree[next_index] = left_child;
 
         struct tree_node right_child;
         right_child.value = next_node.second_value;
         right_child.left = right_child.right = -1;
-        huffman_tree[leaf + 2] = right_child;
+        huffman_tree[next_index + 1] = right_child;
  
-        leaves[next_node.first_value] = leaf + 1;
-        leaves[next_node.second_value] = leaf + 2;
+        leaves[next_node.first_value] = next_index;
+        leaves[next_node.second_value] = next_index + 1;
+        next_index += 2;
     }
 
     struct PGM_Image *decoded_image = (struct PGM_Image *) calloc (1, sizeof(struct PGM_Image));
@@ -46,10 +49,11 @@ struct PGM_Image *huffman_decode_image(
         return NULL;
     }
 
+    long int byte_pos = 0;
+    unsigned char bit_pos = 0;
+
     for (int i = 0; i < image_height; i++) {
         for (int j = 0; j < image_width; j++) {
-            long int byte_pos = 0;
-            unsigned char bit_pos = 0;
             struct tree_node current_node = huffman_tree[0];
             
             while (current_node.value < 0) {

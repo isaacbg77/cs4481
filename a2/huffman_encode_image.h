@@ -1,6 +1,8 @@
 #ifndef HUFFMAN_ENCODE_IMAGE_H
 #define HUFFMAN_ENCODE_IMAGE_H
 
+#include <string.h>
+
 #include "libpnm.h"
 #include "generate_huffman_nodes.h"
 

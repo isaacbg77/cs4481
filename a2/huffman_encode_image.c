@@ -11,6 +11,9 @@ unsigned char *huffman_encode_image(
     int code_lengths[input_pgm_image->maxGrayValue+1];
     int largest_code_length = 0;
 
+    memset(huffman_codes, 0, (input_pgm_image->maxGrayValue + 1) * 32 * sizeof(unsigned char));
+    memset(code_lengths, 0, (input_pgm_image->maxGrayValue + 1) * sizeof(unsigned char));
+
     for (int i = number_of_nodes-1; i >= 0; i--) {
         struct node next_node = huffman_node[i];
         int code_length = code_lengths[next_node.first_value];
@@ -25,7 +28,7 @@ unsigned char *huffman_encode_image(
         huffman_codes[next_node.second_value][code_length_bytes] |= 1 << (7 - next_bit);
 
         code_lengths[next_node.first_value]++;
-        code_lengths[next_node.second_value]++;
+        code_lengths[next_node.second_value] = code_lengths[next_node.first_value];
 
         if (code_lengths[next_node.first_value] > largest_code_length)
             largest_code_length = code_lengths[next_node.first_value];
@@ -47,12 +50,13 @@ unsigned char *huffman_encode_image(
             int code_bit_pos = 0;
 
             while (code_bit_pos < code_length) {
-                unsigned char next_bit = code_bit_pos % 8;
-                encoded_data[byte_pos] |= (code[code_bit_pos/8] & 1 << (7 - next_bit));
+                unsigned char next_bit = code[code_bit_pos/8] & 1 << (7 - code_bit_pos % 8);
+                next_bit = next_bit >> (7 - code_bit_pos % 8);
+
+                encoded_data[byte_pos] |= next_bit << (7 - bit_pos);
 
                 bit_pos++;
                 code_bit_pos++;
-
                 if (bit_pos == 8) {
                     byte_pos++;
                     bit_pos = 0;
