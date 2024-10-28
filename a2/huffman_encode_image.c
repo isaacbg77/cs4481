@@ -20,15 +20,19 @@ unsigned char *huffman_encode_image(
         int code_length_bytes = code_length / 8;
         unsigned char next_bit = (code_length % 8);
 
-        for (int j = 0; j <= code_length_bytes; j++) {
-            huffman_codes[next_node.second_value][j] = huffman_codes[next_node.first_value][j];
+        if (next_node.second_value >= 0) {
+            for (int j = 0; j <= code_length_bytes; j++) {
+                huffman_codes[next_node.second_value][j] = huffman_codes[next_node.first_value][j];
+            }
+
+            huffman_codes[next_node.first_value][code_length_bytes] &= ~(1 << (7 - next_bit));
+            huffman_codes[next_node.second_value][code_length_bytes] |= 1 << (7 - next_bit);
+
+            code_lengths[next_node.first_value]++;
+            code_lengths[next_node.second_value] = code_lengths[next_node.first_value];
         }
-
-        huffman_codes[next_node.first_value][code_length_bytes] &= ~(1 << (7 - next_bit));
-        huffman_codes[next_node.second_value][code_length_bytes] |= 1 << (7 - next_bit);
-
-        code_lengths[next_node.first_value]++;
-        code_lengths[next_node.second_value] = code_lengths[next_node.first_value];
+        else
+            code_lengths[next_node.first_value]++;
 
         if (code_lengths[next_node.first_value] > largest_code_length)
             largest_code_length = code_lengths[next_node.first_value];

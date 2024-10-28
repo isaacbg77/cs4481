@@ -1,3 +1,4 @@
+#include "generate_pixel_frequency.h"
 #include "read_huffman_encoded_data.h"
 #include "huffman_decode_image.h"
 
@@ -49,6 +50,7 @@ int main(int argc, char *argv[])
     }
 
     // Free allocated memory
+    free_PGM_Image(decoded_image);
     free(huffman_nodes);
     free(encoded_image);
     free(decoded_image);

@@ -38,10 +38,14 @@ int main(int argc, char *argv[])
 
     // Encode image
     long int length_of_encoded_image;
+    int number_of_nodes = number_of_non_zero_values_in_the_frequency_array > 1 ?
+        number_of_non_zero_values_in_the_frequency_array - 1 :
+        number_of_non_zero_values_in_the_frequency_array;
+
     unsigned char *encoded_data = huffman_encode_image(
         &input_pgm_image,
         huffman_nodes,
-        number_of_non_zero_values_in_the_frequency_array-1,
+        number_of_nodes,
         &length_of_encoded_image
     );
 
@@ -51,13 +55,14 @@ int main(int argc, char *argv[])
         input_pgm_image.width,
         input_pgm_image.height,
         input_pgm_image.maxGrayValue,
-        number_of_non_zero_values_in_the_frequency_array-1,
+        number_of_nodes,
         huffman_nodes,
         length_of_encoded_image,
         encoded_data
     );
 
     // Free allocated memory
+    free_PGM_Image(&input_pgm_image);
     free(frequencies);
     free(huffman_nodes);
     free(encoded_data);

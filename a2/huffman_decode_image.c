@@ -33,14 +33,18 @@ struct PGM_Image *huffman_decode_image(
         left_child.left = left_child.right = -1;
         huffman_tree[next_index] = left_child;
 
-        struct tree_node right_child;
-        right_child.value = next_node.second_value;
-        right_child.left = right_child.right = -1;
-        huffman_tree[next_index + 1] = right_child;
- 
         leaves[next_node.first_value] = next_index;
-        leaves[next_node.second_value] = next_index + 1;
-        next_index += 2;
+        next_index++;
+
+        if (next_node.second_value >= 0) {
+            struct tree_node right_child;
+            right_child.value = next_node.second_value;
+            right_child.left = right_child.right = -1;
+            huffman_tree[next_index] = right_child;
+
+            leaves[next_node.second_value] = next_index;
+            next_index++;
+        }
     }
 
     struct PGM_Image *decoded_image = (struct PGM_Image *) calloc (1, sizeof(struct PGM_Image));

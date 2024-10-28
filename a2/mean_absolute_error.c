@@ -39,5 +39,9 @@ float mean_absolute_error(char *file_name_1_ptr, char *file_name_2_ptr)
         }
     }
 
+    // Free images
+    free_PGM_Image(&image1);
+    free_PGM_Image(&image2);
+
     return (float) sum / (image1.width * image1.height);
 }
