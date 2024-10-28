@@ -12,6 +12,7 @@ int main(int argc, char *argv[])
     char *image1_file_name = argv[1];
     char *image2_file_name = argv[2];
 
+    // Calculate mean abolsute error and print output
     float mae = mean_absolute_error(image1_file_name, image2_file_name);
     if (mae >= 0) {
         printf("Mean Absolute Error: %f (%s, %s)\n", mae, image1_file_name, image2_file_name);
