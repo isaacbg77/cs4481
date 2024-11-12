@@ -8,15 +8,17 @@ int main(int argc, char *argv[])
         return 0;
     }
 
-    // Store input args
+    // Store file name
     char *in_file_name = argv[1];
 
     clock_t start, end;
 
+    // Decode compressed file and store running time
     start = clock();
     Decode_Using_LZ77(in_file_name);
     end = clock();
 
+    // Output time
     printf("Decompression Time: %fs\n", ((double) end - start) / CLOCKS_PER_SEC);
 
     return 0;

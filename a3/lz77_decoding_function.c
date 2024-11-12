@@ -30,41 +30,49 @@ void Decode_Using_LZ77(char *in_compressed_filename_Ptr)
 
     // ---------------------------------------------------------------------------------------------------
 
+    // Allocate space for image symbols
     unsigned char *symbols = (unsigned char *) calloc (width*height, sizeof(unsigned char));
     int symbol_pos = 0;
 
     for (int i = 0; i < num_tokens; i++) {
+        // Get data from next token
         unsigned int offset = offsets[i];
         unsigned int length = lengths[i];
         unsigned char next = next_symbols[i];
 
+        // Calculate offset position
         int start = symbol_pos - offset;
+
+        // Copy symbols based on length
         for (int j = start; j < start + length; j++) {
             symbols[symbol_pos] = symbols[j];
             symbol_pos++;
         }
 
+        // Append the next mismatch symbol
         symbols[symbol_pos] = next;
         symbol_pos++;
     }
 
     // ---------------------------------------------------------------------------------------------------
 
+    // Create new PGM image
     struct PGM_Image out_image;
     if (create_PGM_Image(&out_image, width, height, maxGray) < 0) {
         printf("Failed to create PGM image.\n");
         return;
     }
 
+    // Copy symbols into image
     for (int i = 0; i < height; i++) {
         for (int j = 0; j < width; j++) {
             out_image.image[i][j] = symbols[i * width + j];
         }
     }
 
+    // Save image as file
     char file_name[100];
     sprintf(file_name, "%s.pgm", in_compressed_filename_Ptr);
-
     if (save_PGM_Image(&out_image, file_name, true) < 0) {
         printf("Failed to save decompressed image: %s\n", in_compressed_filename_Ptr);
         return;

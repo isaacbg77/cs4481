@@ -12,13 +12,16 @@ int main(int argc, char *argv[])
     char *input_pgm_image_name = argv[1];
     unsigned int buffer_size = atoi(argv[2]);
 
+    // Init clock times and other data
     clock_t start, end;
     float avg_offset, std_offset, avg_length, std_length;
 
+    // Encode image and record running time
     start = clock();
     Encode_Using_LZ77(input_pgm_image_name, buffer_size, &avg_offset, &std_offset, &avg_length, &std_length);
     end = clock();
 
+    // Output calculated values and running time
     printf("Offset Average: %f\n", avg_offset);
     printf("Offset Standard Deviation: %f\n", std_offset);
     printf("Match Length Average: %f\n", avg_length);
