@@ -1,6 +1,4 @@
 #include "lz77_encoding_function.h"
-#include <math.h>
-#include <stdio.h>
 
 int compare_unsigned_ints(const void *a, const void *b)
 {
@@ -41,6 +39,7 @@ void Encode_Using_LZ77(
     }
     int width = in_image.width;
     int height = in_image.height;
+    int maxGray = in_image.maxGrayValue;
 
     unsigned char *symbols = (unsigned char *) calloc (width*height, sizeof(unsigned char));
     for (int i = 0; i < height; i++) {
@@ -59,7 +58,7 @@ void Encode_Using_LZ77(
     unsigned char *next_symbols = (unsigned char *) calloc (width*height, sizeof(unsigned char));
 
     for (int i = 0; i < width*height; i++) {
-        int search_buffer_end = i - searching_buffer_size;
+        int search_buffer_end = i - 1 - searching_buffer_size;
         if (search_buffer_end < 0) {
             search_buffer_end = 0;
         }
@@ -108,8 +107,10 @@ void Encode_Using_LZ77(
         return;
     }
 
+    // Write file header
+    fprintf(file, "%d %d %d %d\n", width, height, maxGray, num_tokens);
+
     // Write encoded data to file
-    fprintf(file, "%d\n", num_tokens);
     fwrite(offsets, sizeof(unsigned int), num_tokens, file);
     fprintf(file, "\n");
     fwrite(lengths, sizeof(unsigned int), num_tokens, file);
