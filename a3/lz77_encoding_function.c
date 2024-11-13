@@ -67,7 +67,7 @@ void Encode_Using_LZ77(
 
     for (int i = 0; i < width*height; i++) {
         // Calculate pointer for the end of the search buffer
-        int search_buffer_end = i - 1 - searching_buffer_size;
+        int search_buffer_end = i - searching_buffer_size;
         if (search_buffer_end < 0) {
             search_buffer_end = 0;
         }
